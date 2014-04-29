@@ -1,0 +1,41 @@
+{
+    "name": "rquadling/omnipay-tnspay",
+    "type": "library",
+    "description": "TNSPay driver for the Omnipay payment processing library",
+    "keywords": [
+        "tnspay",
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment"
+    ],
+    "homepage": "https://github.com/rquadling/omnipay-tnspay",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Richard Quadling",
+            "email": "RQuadling@GMail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Omnipay\\TNSPay\\" : "src/" }
+    },
+    "require": {
+        "omnipay/common": "2.*"
+    },
+    "require-dev": {
+        "guzzle/plugin-mock": "~3.1",
+        "mockery/mockery": "~0.8",
+        "omnipay/tests": "2.*",
+        "phpunit/phpunit": "~3.7.16",
+        "squizlabs/php_codesniffer": "~1.4.4"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
