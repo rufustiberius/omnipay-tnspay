@@ -90,10 +90,11 @@ class PurchaseRequest extends AbstractRequest
      */
     protected function getEndpoint()
     {
-        return 'https://secure.na.tnspayments.com/api/rest/version/' . self::TNSPAY_API_VERSION_NUMBER .
-        '/merchant/' . $this->getMerchantId() .
-        '/order/' . $this->getTransactionId() .
-        '/transaction/' . $this->getTransactionId();
+        return
+            'https://secure.na.tnspayments.com/api/rest/version/' . self::TNSPAY_API_VERSION_NUMBER .
+            '/merchant/' . $this->getMerchantId() .
+            '/order/' . $this->getTransactionId() .
+            '/transaction/' . $this->getTransactionId();
     }
 
     /**
