@@ -7,10 +7,11 @@ TNSPay Driver for OmniPay
 
 **TNSPay driver for the Omnipay PHP payment processing library**
 
+<!---
 [![Build Status](https://travis-ci.org/rquadling/omnipay-tnspay.png?branch=master)](https://travis-ci.org/omnipay/tnspay)
 [![Latest Stable Version](https://poser.pugx.org/rquadling/omnipay-tnspay/version.png)](https://packagist.org/packages/omnipay/tnspay)
 [![Total Downloads](https://poser.pugx.org/rquadling/omnipay-tnspay/d/total.png)](https://packagist.org/packages/rquadling/omnipay-tnspay)
-
+-->
 [Omnipay](https://github.com/omnipay/omnipay) is a framework agnostic, multi-gateway payment
 processing library for PHP 5.3+. This package adds support for the [TNSPay](http://www.tnsi.com/tnspay) payment gateway, using their API/direct (DPG) method of integration.
 
