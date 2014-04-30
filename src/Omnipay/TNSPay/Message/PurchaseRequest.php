@@ -106,7 +106,7 @@ class PurchaseRequest extends AbstractRequest
     public function sendData($data)
     {
         $json = json_encode($data);
-        $httpResponse = $this->httpClient->post($this->getEndpoint(), null, $json)
+        $httpResponse = $this->httpClient->put($this->getEndpoint(), null, $json)
             ->setAuth('merchant.' . $this->getMerchantId(), $this->getPassword())
             ->send();
 
