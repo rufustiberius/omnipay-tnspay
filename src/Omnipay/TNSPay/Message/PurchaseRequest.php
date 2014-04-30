@@ -50,29 +50,29 @@ class PurchaseRequest extends AbstractRequest
         $this->getCard()->validate();
 
         $data = array(
-            'apiOperation' => 'PAY',
+            'apiOperation'  => 'PAY',
             'sourceOfFunds' => array(
-                'type' => 'CARD',
+                'type'     => 'CARD',
                 'provided' => array(
                     'card' => array(
-                        'number' => $this->getCard()->getNumber(),
-                        'expiry' => array(
-                            'month' => $this->getCard()->getExpiryMonth(),
-                            'year' => $this->getCard()->getExpiryYear(),
+                        'number'       => $this->getCard()->getNumber(),
+                        'expiry'       => array(
+                            'month' => $this->getCard()->getExpiryDate('m'),
+                            'year'  => $this->getCard()->getExpiryDate('y'),
                         ),
                         'securityCode' => $this->getCard()->getCVV(),
                     ),
                 ),
             ),
-            'transaction' => array(
-                'amount' => $this->getAmount(),
-                'currency' => $this->getCurrency(),
+            'transaction'   => array(
+                'amount'    => $this->getAmount(),
+                'currency'  => $this->getCurrency(),
                 'reference' => $this->getTransactionId(),
             ),
-            'order' => array(
+            'order'         => array(
                 'reference' => $this->getTransactionId(),
             ),
-            'customer' => array(
+            'customer'      => array(
                 'ipAddress' => $_SERVER['REMOTE_ADDR'],
             ),
         );
@@ -105,8 +105,11 @@ class PurchaseRequest extends AbstractRequest
      */
     public function sendData($data)
     {
-        $json = json_encode($data);
-        $httpResponse = $this->httpClient->put($this->getEndpoint(), null, $json)
+        $json         = json_encode($data);
+        $headers      = array(
+            'Content-Type' => 'application/json;charset=utf-8',
+        );
+        $httpResponse = $this->httpClient->put($this->getEndpoint(), $headers, $json)
             ->setAuth('merchant.' . $this->getMerchantId(), $this->getPassword())
             ->send();
 
