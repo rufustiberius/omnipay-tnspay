@@ -46,7 +46,7 @@ class PurchaseRequest extends AbstractRequest
      */
     public function getData()
     {
-        $this->validate('amount', 'card', 'transactionId');
+        $this->validate('amount', 'card', 'transactionId', 'clientIp');
         $this->getCard()->validate();
 
         $data = array(
@@ -73,7 +73,7 @@ class PurchaseRequest extends AbstractRequest
                 'reference' => $this->getTransactionId(),
             ),
             'customer'      => array(
-                'ipAddress' => $_SERVER['REMOTE_ADDR'],
+                'ipAddress' => $this->getClientIp(),
             ),
         );
 

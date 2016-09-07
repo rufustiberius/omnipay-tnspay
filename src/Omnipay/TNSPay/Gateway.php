@@ -13,6 +13,13 @@ use Omnipay\Common\AbstractGateway;
  */
 class Gateway extends AbstractGateway
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->httpClient->setSslVerification(false);
+    }
+
     public function getName()
     {
         return 'TNSPay';
