@@ -4,12 +4,45 @@ namespace Omnipay\TNSPay\Message;
 
 use DOMDocument;
 use SimpleXMLElement;
+use Omnipay\Common\Message\AbstractRequest;
 
 /**
  * TNSPay Purchase Request
  */
-class PurchaseRequest extends TnsRequest
+class TnsRequest extends AbstractRequest
 {
+
+    /**
+     * The TNSPay API Version is periodically updated.
+     *
+     * Documentation is available at https://secure.na.tnspayments.com/api/documentation/apiDocumentation/rest-json/index.html?locale=en_US
+     */
+    const TNSPAY_API_VERSION_NUMBER = 38;
+
+    /**
+     * TNSPay Api base url
+     */
+    const TNSPAY_BASE_URL = 'https://secure.na.tnspayments.com/';
+
+    public function getMerchantId()
+    {
+        return $this->getParameter('merchantId');
+    }
+
+    public function setMerchantId($value)
+    {
+        return $this->setParameter('merchantId', $value);
+    }
+
+    public function getPassword()
+    {
+        return $this->getParameter('password');
+    }
+
+    public function setPassword($value)
+    {
+        return $this->setParameter('password', $value);
+    }
 
     /**
      * Get the data to be sent to TNSPay.
@@ -20,62 +53,36 @@ class PurchaseRequest extends TnsRequest
     {
         $this->validate('amount', 'card', 'transactionId', 'clientIp');
         $this->getCard()->validate();
-        $cardReference =$this->getCardReference();
 
         $data = array(
             'apiOperation'  => 'PAY',
-            'transaction' => array (
-                'acquirer' => array (
-                    'transactionId' => $this->getTransactionId()
+            'sourceOfFunds' => array(
+                'type'     => 'CARD',
+                'provided' => array(
+                    'card' => array(
+                        'number'       => $this->getCard()->getNumber(),
+                        'expiry'       => array(
+                            'month' => $this->getCard()->getExpiryDate('m'),
+                            'year'  => $this->getCard()->getExpiryDate('y'),
+                        ),
+                        'securityCode' => $this->getCard()->getCVV(),
+                    ),
                 ),
+            ),
+            'transaction'   => array(
+                'amount'    => $this->getAmount(),
+                'currency'  => $this->getCurrency(),
                 'reference' => $this->getTransactionId(),
-                'source' => 'INTERNET',
-                'frequency' => 'SINGLE'
             ),
             'order'         => array(
                 'reference' => $this->getTransactionId(),
-                'amount'    => $this->getAmount(),
-                'currency'  => $this->getCurrency(),
             ),
-            'sourceOfFunds' => $this->getSourceOfFunds($this->getCard(), $cardReference),
-            'device' => array ('ipAddress' => $this->getClientIp())
+            'customer'      => array(
+                'ipAddress' => $this->getClientIp(),
+            ),
         );
 
-
-        error_log(print_r($data, true), 3, '/tmp/purchase_request.log');
         return $data;
-    }
-
-    /**
-     * @param Omnipay\Common\CreditCard $card $card
-     * @param string $cardReference
-     * @return array
-     */
-    private function getSourceOfFunds($card, $cardReference)
-    {
-        $sourceOfFouds = array(
-            'type'     => 'CARD',
-            'provided' => array(
-                'card' => array(
-                    'number'       => $card->getNumber(),
-                    'expiry'       => array(
-                        'month' => $card->getExpiryDate('m'),
-                        'year'  => $card->getExpiryDate('y'),
-                    ),
-                    'securityCode' => $card->getCVV(),
-                    'nameOnCard'=> $card->getBillingName(),
-                ),
-            ),
-        );
-
-        if(!empty($cardReference)) {
-            $sourceOfFouds['token'] = $cardReference;
-            unset($sourceOfFouds['provided']['card']['number']);
-            unset($sourceOfFouds['provided']['card']['expiry']);
-            unset($sourceOfFouds['provided']['card']['securityCode']);
-        }
-
-        return $sourceOfFouds;
     }
 
     /**
