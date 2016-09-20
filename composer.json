@@ -22,7 +22,8 @@
         "psr-0": { "Omnipay\\TNSPay\\" : "src/" }
     },
     "require": {
-        "omnipay/common": "2.*"
+        "omnipay/common": "2.*",
+        "fzaninotto/faker": "^1.6"
     },
     "require-dev": {
         "guzzle/plugin-mock": "~3.1",

@@ -64,18 +64,77 @@ class PurchaseTest extends GatewayTestCase
 
 
         $response = $this->gateway->purchase(
-            array('amount' => '1009.00',
-                    'cardReference' => $bodyResponse['token'],
+            array(
+                'amount' => '1009.00',
+                'cardReference' => $bodyResponse['token'],
                 'transactionId' => time(),
                 'clientIp' => '189.206.5.138',
-                'card' => $cardData))
-            ->send();
-         error_log(print_r($response, true), 3, '/tmp/token_purchases.log');
+                'card' => $cardData,
+                'items' => array(
+                    array ('sku' => 'AEO-2015',
+                            'qty' => 1
+                    ),
+                    array ('sku' => 'AEO-2087',
+                        'qty' => 1
+                    )
+                )
+            ))->send();
+
+        error_log(print_r($response, true), 3, '/tmp/token_purchases.log');
         $this->assertTrue($response->isSuccessful());
         //print_r($response);
 
     }
 
+
+    public function testPaymentPlanData()
+    {
+        $ppBag = new PaymentPlanBag();
+        $ppBag->add(array('cardBrand'=>'default', 'planId' =>'BANORTE_WITHOUT_INTEREST'));
+
+        //$ppBag->add(array('cardBrand'=>'default', 'planId' =>'XXXX'));
+
+        $this->gateway->setPaymentPlans($ppBag);
+
+        $cardData = [
+            'number' => '4012000033330026',
+            'expiryMonth' => '5',
+            'expiryYear' => '2017',
+            'cvv' => '123',
+            'firstName' => 'Osom',
+            'lastName' => 'Tester',
+        ];
+
+        //Send purchase request
+        $tokenizationResponse = $this->gateway->createCard( [ 'card' => $cardData ])->send();
+
+        $this->assertTrue($tokenizationResponse->isSuccessful());
+        $bodyResponse = $tokenizationResponse->getData();
+
+
+        $response = $this->gateway->purchase(
+            array(
+                'amount' => '1009.00',
+                'cardReference' => $bodyResponse['token'],
+                'transactionId' => time(),
+                'clientIp' => '189.206.5.138',
+                'card' => $cardData,
+                'items' => array(
+                    array ('sku' => 'AEO-2015',
+                        'qty' => 1
+                    ),
+                    array ('sku' => 'AEO-2087',
+                        'qty' => 1
+                    )
+                )
+            ))->setInstallments(3)->send();
+
+        error_log("\n ****" .date('Y-m-d H:i:s'). "  ****\n", 3, '/tmp/purchase_test.log');
+        error_log(print_r($response->getData(), true), 3, '/tmp/purchase_test.log');
+
+        $this->assertTrue($response->isSuccessful());
+
+    }
 
     /**
      * Purchase using a tokenized card

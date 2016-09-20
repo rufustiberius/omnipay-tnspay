@@ -7,7 +7,7 @@ use SimpleXMLElement;
 use Omnipay\Common\Message\AbstractRequest;
 
 /**
- * TNSPay Purchase Request
+ * TNSPay Card Request (Tokenization based om system-generated tokens)
  */
 class CardRequest extends TnsRequest
 {

@@ -3,6 +3,9 @@
 namespace Omnipay\TNSPay\Message;
 
 use DOMDocument;
+use Guzzle\Common\Exception\InvalidArgumentException;
+use Guzzle\Http\Exception\RequestException;
+use Guzzle\Http\Exception\BadResponseException;
 use SimpleXMLElement;
 
 /**
@@ -10,6 +13,11 @@ use SimpleXMLElement;
  */
 class PurchaseRequest extends TnsRequest
 {
+
+    /**
+     * @var int $installments
+     */
+    protected $installments=1;
 
     /**
      * Get the data to be sent to TNSPay.
@@ -41,13 +49,27 @@ class PurchaseRequest extends TnsRequest
             'device' => array ('ipAddress' => $this->getClientIp())
         );
 
+        if($this->installments > 1 ) {
+            $data['paymentPlan'] = $this->getInstallmentsData();
+        }
 
-        error_log(print_r($data, true), 3, '/tmp/purchase_request.log');
+        //error_log(print_r($data, true), 3, '/tmp/purchase_request.log');
+        //die;
         return $data;
     }
 
+    public function getInstallmentsData()
+    {
+        $paymentPlans = $this->getPaymentPlans();
+        $paymentPlanToUse = $paymentPlans->getPaymentPlanByCardBrand($this->getCard());
+        return array ('numberOfPayments' => $this->installments,
+                        'planId' => $paymentPlanToUse->getPlanId(), //PLANAMEX
+                    );
+
+    }
+
     /**
-     * @param Omnipay\Common\CreditCard $card $card
+     * @param Omnipay\Common\CreditCard $card
      * @param string $cardReference
      * @return array
      */
@@ -79,6 +101,25 @@ class PurchaseRequest extends TnsRequest
     }
 
     /**
+     * @param int $installments
+     */
+    public function setInstallments($installments)
+    {
+        $this->installments = $installments;
+        return $this;
+    }
+
+
+    /**
+     * @param $installments
+     * @return int
+     */
+    protected function getInstallments($installments)
+    {
+        return $installments;
+    }
+
+    /**
      * TNSPay requires an OrderID and a TransactionID
      *
      * At the moment, only a transaction ID is available from OmniPay, so this
@@ -107,9 +148,16 @@ class PurchaseRequest extends TnsRequest
         $headers      = array(
             'Content-Type' => 'application/json;charset=utf-8',
         );
-        $httpResponse = $this->httpClient->put($this->getEndpoint(), $headers, $json)
-            ->setAuth('merchant.' . $this->getMerchantId(), $this->getPassword())
-            ->send();
+
+        try {
+            $httpResponse = $this->httpClient->put($this->getEndpoint(), $headers, $json)
+                ->setAuth('merchant.' . $this->getMerchantId(), $this->getPassword())
+                ->send();
+
+        }  catch (BadResponseException $e) {
+
+            return $this->response = new Response($this, $e->getRequest()->getResponse()->getBody());
+        }
 
         return $this->response = new Response($this, $httpResponse->getBody());
     }

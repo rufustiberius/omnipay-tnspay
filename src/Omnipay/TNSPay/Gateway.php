@@ -30,6 +30,7 @@ class Gateway extends AbstractGateway
         return array(
             'merchantId' => '',
             'password' => '',
+            'paymentPlans' => '',
             'testMode' => false
         );
     }
@@ -52,6 +53,16 @@ class Gateway extends AbstractGateway
     public function setPassword($value)
     {
         return $this->setParameter('password', $value);
+    }
+
+    public function getPaymentPlans()
+    {
+        return $this->getParameter('paymentPlans');
+    }
+
+    public function setPaymentPlans($value)
+    {
+        return $this->setParameter('paymentPlans', $value);
     }
 
     public function purchase(array $parameters = array())

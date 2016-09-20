@@ -45,6 +45,19 @@ class TnsRequest extends AbstractRequest
     }
 
     /**
+     * @return PaymentPlanBag
+     */
+    public function getPaymentPlans()
+    {
+        return $this->getParameter('paymentPlans');
+    }
+
+    public function setPaymentPlans($value)
+    {
+        return $this->setParameter('paymentPlans', $value);
+    }
+
+    /**
      * Get the data to be sent to TNSPay.
      *
      * @return array
