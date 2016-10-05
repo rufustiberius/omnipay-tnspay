@@ -45,4 +45,29 @@ class CardTest extends GatewayTestCase
     }
 
 
+    public function testInvalidCard()
+    {
+
+        $cardData = [
+            'number' => '4012000033330026',
+            'expiryMonth' => '5',
+            'expiryYear' => '2017',
+            'cvv' => '123'
+        ];
+
+        //Send purchase request
+        $response = $this->gateway->createCard( [ 'card' => $cardData ] )->send();
+
+        // var_dump($response->getResponse());
+        $this->assertTrue($response->isSuccessful());
+        $bodyResponse = $response->getData();
+        //error_log(print_r($response, true), 3, '/tmp/rr.log');
+        //  error_log(print_r($response->getData(), true), 3, '/tmp/rr.log');
+
+        $this->assertEquals('VALID', $bodyResponse['status']);
+        $this->assertEquals('BASIC', $bodyResponse['verificationStrategy']);
+        $this->assertEquals('BASIC_VERIFICATION_SUCCESSFUL', $bodyResponse['response']['gatewayCode']);
+
+    }
+
 }
