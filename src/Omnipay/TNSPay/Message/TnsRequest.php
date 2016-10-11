@@ -44,6 +44,16 @@ class TnsRequest extends AbstractRequest
         return $this->setParameter('password', $value);
     }
 
+    public function setOrderId($value)
+    {
+        return $this->setParameter('orderId', $value);
+    }
+
+    public function getOrderId()
+    {
+        return $this->getParameter('orderId');
+    }
+
     /**
      * @return PaymentPlanBag
      */
@@ -64,7 +74,7 @@ class TnsRequest extends AbstractRequest
      */
     public function getData()
     {
-        $this->validate('amount', 'card', 'transactionId', 'clientIp');
+        $this->validate('amount', 'card', 'orderId' ,'transactionId', 'clientIp');
         $this->getCard()->validate();
 
         $data = array(
@@ -111,7 +121,7 @@ class TnsRequest extends AbstractRequest
         return
             'https://secure.na.tnspayments.com/api/rest/version/' . self::TNSPAY_API_VERSION_NUMBER .
             '/merchant/' . $this->getMerchantId() .
-            '/order/' . $this->getTransactionId() .
+            '/order/' . $this->getOrderId() .
             '/transaction/' . $this->getTransactionId();
     }
 

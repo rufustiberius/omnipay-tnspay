@@ -33,9 +33,9 @@ class PurchaseRequest extends TnsRequest
         $data = array(
             'apiOperation'  => 'PAY',
             'transaction' => array (
-                'acquirer' => array (
+                /*'acquirer' => array (
                     'transactionId' => $this->getTransactionId()
-                ),
+                ),*/
                 'reference' => $this->getTransactionId(),
                 'source' => 'INTERNET',
                 'frequency' => 'SINGLE'
@@ -132,7 +132,7 @@ class PurchaseRequest extends TnsRequest
         return
             'https://secure.na.tnspayments.com/api/rest/version/' . self::TNSPAY_API_VERSION_NUMBER .
             '/merchant/' . $this->getMerchantId() .
-            '/order/' . $this->getTransactionId() .
+            '/order/' . $this->getOrderId() .
             '/transaction/' . $this->getTransactionId();
     }
 
