@@ -26,8 +26,8 @@ class PurchaseRequest extends TnsRequest
      */
     public function getData()
     {
-        $this->validate('amount', 'card', 'transactionId', 'clientIp');
-        $this->getCard()->validate();
+        $this->validate('amount', 'transactionId', 'clientIp');
+        //$this->getCard()->validate();
         $cardReference =$this->getCardReference();
 
         $data = array(
@@ -127,7 +127,7 @@ class PurchaseRequest extends TnsRequest
      *
      * @todo Determine the mechanism for live and test mode.
      */
-    protected function getEndpoint()
+    public function getEndpoint()
     {
         return
             'https://secure.na.tnspayments.com/api/rest/version/' . self::TNSPAY_API_VERSION_NUMBER .
