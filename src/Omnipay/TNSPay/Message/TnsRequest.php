@@ -17,7 +17,7 @@ class TnsRequest extends AbstractRequest
      *
      * Documentation is available at https://secure.na.tnspayments.com/api/documentation/apiDocumentation/rest-json/index.html?locale=en_US
      */
-    const TNSPAY_API_VERSION_NUMBER = 38;
+    const TNSPAY_API_VERSION_NUMBER = 39;
 
     /**
      * TNSPay Api base url
