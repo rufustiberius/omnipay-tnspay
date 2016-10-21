@@ -65,4 +65,8 @@ class Device
     {
         return array('ip', 'browser');
     }
+
+    public function toArray() {
+        return array ('ip'=>$this->getIp(), 'browser'=>$this->getBrowser());
+    }
 }
