@@ -10,7 +10,14 @@ namespace Omnipay\TNSPay;
 
 class Device
 {
+    /**
+     * @var string
+     */
     protected $ip;
+
+    /**
+     * @var string
+     */
     protected $browser;
 
     public function __construct($ip, $browser='')
@@ -19,13 +26,43 @@ class Device
         $this->browser=$browser;
     }
 
+    /**
+     * @return string
+     */
     public function getIp()
     {
         return $this->ip;
     }
 
+    /**
+     * @param string $ip
+     */
+    public function setIp($ip)
+    {
+        $this->ip = $ip;
+    }
+
+    /**
+     * @return string
+     */
     public function getBrowser()
     {
         return $this->browser;
+    }
+
+    /**
+     * @param string $browser
+     */
+    public function setBrowser($browser)
+    {
+        $this->browser = $browser;
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep()
+    {
+        return array('ip', 'browser');
     }
 }
