@@ -9,7 +9,7 @@ use Omnipay\Common\Message\AbstractRequest;
 /**
  * TNSPay Purchase Request
  */
-class TnsRequest extends AbstractRequest
+abstract class TnsRequest extends AbstractRequest
 {
 
     /**
@@ -67,46 +67,56 @@ class TnsRequest extends AbstractRequest
         return $this->setParameter('paymentPlans', $value);
     }
 
+
+    /**
+     * Get the client Device.
+     *
+     * @return string
+     */
+    public function getDevice()
+    {
+        return $this->getParameter('device');
+    }
+
+    /**
+     * Sets the client Device.
+     *
+     * @param string $value
+     * @return AbstractRequest Provides a fluent interface
+     */
+    public function setDevice($value)
+    {
+        return $this->setParameter('device', $value);
+    }
+
+    /**
+     * Get the client Device.
+     *
+     * @return string
+     */
+    public function getShop()
+    {
+        return $this->getParameter('shop');
+    }
+
+    /**
+     * Sets the client Device.
+     *
+     * @param string $value
+     * @return AbstractRequest Provides a fluent interface
+     */
+    public function setShop($value)
+    {
+        return $this->setParameter('shop', $value);
+    }
+
     /**
      * Get the data to be sent to TNSPay.
      *
      * @return array
      */
-    public function getData()
-    {
-        $this->validate('amount', 'card', 'orderId' ,'transactionId', 'clientIp');
-        $this->getCard()->validate();
+    public abstract function getData();
 
-        $data = array(
-            'apiOperation'  => 'PAY',
-            'sourceOfFunds' => array(
-                'type'     => 'CARD',
-                'provided' => array(
-                    'card' => array(
-                        'number'       => $this->getCard()->getNumber(),
-                        'expiry'       => array(
-                            'month' => $this->getCard()->getExpiryDate('m'),
-                            'year'  => $this->getCard()->getExpiryDate('y'),
-                        ),
-                        'securityCode' => $this->getCard()->getCVV(),
-                    ),
-                ),
-            ),
-            'transaction'   => array(
-                'amount'    => $this->getAmount(),
-                'currency'  => $this->getCurrency(),
-                'reference' => $this->getTransactionId(),
-            ),
-            'order'         => array(
-                'reference' => $this->getTransactionId(),
-            ),
-            'customer'      => array(
-                'ipAddress' => $this->getClientIp(),
-            ),
-        );
-
-        return $data;
-    }
 
     /**
      * TNSPay requires an OrderID and a TransactionID
@@ -116,14 +126,8 @@ class TnsRequest extends AbstractRequest
      *
      * @todo Determine the mechanism for live and test mode.
      */
-    protected function getEndpoint()
-    {
-        return
-            'https://secure.na.tnspayments.com/api/rest/version/' . self::TNSPAY_API_VERSION_NUMBER .
-            '/merchant/' . $this->getMerchantId() .
-            '/order/' . $this->getOrderId() .
-            '/transaction/' . $this->getTransactionId();
-    }
+    protected abstract function getEndpoint();
+
 
     /**
      * Send the data to TNSPay
@@ -131,17 +135,7 @@ class TnsRequest extends AbstractRequest
      * @param array $data
      * @return \Omnipay\Common\Message\ResponseInterface|Response
      */
-    public function sendData($data)
-    {
-        $json         = json_encode($data);
-        $headers      = array(
-            'Content-Type' => 'application/json;charset=utf-8',
-        );
-        $httpResponse = $this->httpClient->put($this->getEndpoint(), $headers, $json)
-            ->setAuth('merchant.' . $this->getMerchantId(), $this->getPassword())
-            ->send();
+    public abstract function sendData($data);
 
-        return $this->response = new Response($this, $httpResponse->getBody());
-    }
 
 }

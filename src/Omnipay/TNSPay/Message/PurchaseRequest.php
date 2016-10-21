@@ -2,11 +2,13 @@
 
 namespace Omnipay\TNSPay\Message;
 
-use DOMDocument;
-use Guzzle\Common\Exception\InvalidArgumentException;
-use Guzzle\Http\Exception\RequestException;
+//use DOMDocument;
+//use Guzzle\Common\Exception\InvalidArgumentException;
+//use Guzzle\Http\Exception\RequestException;
 use Guzzle\Http\Exception\BadResponseException;
-use SimpleXMLElement;
+use Omnipay\TNSPay\CreditCard;
+
+//use SimpleXMLElement;
 
 /**
  * TNSPay Purchase Request
@@ -26,35 +28,41 @@ class PurchaseRequest extends TnsRequest
      */
     public function getData()
     {
-        $this->validate('amount', 'transactionId', 'clientIp');
+        $this->validate('amount', 'transactionId', 'orderId', 'device', 'shop');
         //$this->getCard()->validate();
-        $cardReference =$this->getCardReference();
 
         $data = array(
             'apiOperation'  => 'PAY',
             'transaction' => array (
-                /*'acquirer' => array (
-                    'transactionId' => $this->getTransactionId()
-                ),*/
                 'reference' => $this->getTransactionId(),
                 'source' => 'INTERNET',
                 'frequency' => 'SINGLE'
             ),
+            'customer' => array ( 'email' => $this->getCard()->getEmail(),
+                                  'firstName'=>$this->getCard()->getFirstName(),
+                                    'lastName' => $this->getCard()->getLastName()
+                ),
             'order'         => array(
                 'reference' => $this->getTransactionId(),
                 'amount'    => $this->getAmount(),
                 'currency'  => $this->getCurrency(),
+                'owningEntity' => substr($this->getShop(), 0, 40),
             ),
-            'sourceOfFunds' => $this->getSourceOfFunds($this->getCard(), $cardReference),
-            'device' => array ('ipAddress' => $this->getClientIp())
+            'billing' => array('address'=>$this->getAddress($this->getCard(), 'Billing') ),
+            'shipping' => array ( 'address'=>$this->getAddress($this->getCard(), 'Shipping')),
+            //'shi' => $this->getBillingAddress(),
+            'sourceOfFunds' => $this->getSourceOfFunds($this->getCard(), $this->getCardReference()),
+            'device' => array ( 'ipAddress' => $this->getDevice()->getIp(),
+                                'browser' => substr($this->getDevice()->getBrowser(), 0, 255)
+                            )
         );
 
         if($this->installments > 1 ) {
             $data['paymentPlan'] = $this->getInstallmentsData();
         }
 
-        //error_log(print_r($data, true), 3, '/tmp/purchase_request.log');
-        //die;
+        error_log(print_r($data, true), 3, '/tmp/purchase_request.log');
+
         return $data;
     }
 
@@ -65,7 +73,6 @@ class PurchaseRequest extends TnsRequest
         return array ('numberOfPayments' => $this->installments,
                         'planId' => $paymentPlanToUse->getPlanId(), //PLANAMEX
                     );
-
     }
 
     /**
@@ -73,7 +80,7 @@ class PurchaseRequest extends TnsRequest
      * @param string $cardReference
      * @return array
      */
-    private function getSourceOfFunds($card, $cardReference)
+    private function getSourceOfFunds($card, $cardReference=null)
     {
         $sourceOfFouds = array(
             'type'     => 'CARD',
@@ -119,6 +126,28 @@ class PurchaseRequest extends TnsRequest
         return $installments;
     }
 
+
+    /**
+     * @param $card
+     * @param $string Billing | Shipping
+     * @return array
+     */
+    protected function getAddress($card, $type)
+    {
+
+        $address = array (
+            'city' => call_user_func_array(array($card, "get{$type}City"), array()),
+            'country' => call_user_func_array(array($card, "get{$type}Country"), array()), //$card->getBillingCountry(), // 3
+            'postcodeZip' => substr( call_user_func_array(array($card, "get{$type}Postcode"), array()), 0, 10) , //10
+            'stateProvince' => substr( call_user_func_array(array($card, "get{$type}State"), array())    , 0, 20), //20
+            'street' => substr( call_user_func_array(array($card, "get{$type}Address1"), array()), 0, 100), //100
+            'street2' => substr( call_user_func_array(array($card, "get{$type}Address2"), array()), 0, 100) //100
+        );
+
+
+        return array_filter($address);;
+    }
+
     /**
      * TNSPay requires an OrderID and a TransactionID
      *
@@ -145,9 +174,7 @@ class PurchaseRequest extends TnsRequest
     public function sendData($data)
     {
         $json         = json_encode($data);
-        $headers      = array(
-            'Content-Type' => 'application/json;charset=utf-8',
-        );
+        $headers      = array( 'Content-Type' => 'application/json;charset=utf-8');
 
         try {
             $httpResponse = $this->httpClient->put($this->getEndpoint(), $headers, $json)
@@ -155,7 +182,6 @@ class PurchaseRequest extends TnsRequest
                 ->send();
 
         }  catch (BadResponseException $e) {
-
             return $this->response = new Response($this, $e->getRequest()->getResponse()->getBody());
         }
 

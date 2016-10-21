@@ -3,6 +3,7 @@
 namespace Omnipay\TNSPay;
 use Omnipay\Tests\GatewayTestCase;
 use Omnipay\Common\CreditCard;
+use Faker;
 
 class PurchaseTest extends GatewayTestCase
 {
@@ -30,11 +31,16 @@ class PurchaseTest extends GatewayTestCase
             'lastName' => 'Tables',
         ];
 
+        error_log(print_r("Here we go\n", true), 3, '/tmp/purchase_request.log');
         $response = $this->gateway->purchase(
-            array('amount' => '450.00',
-                'transactionId' => '2020899',
-                'card' => $card))
-            ->send();
+            array(
+                'amount' => '450.00',
+                'transactionId' => '2880'.time(),
+                'orderId' => '1000000'.time(),
+                'card' => $card,
+                'shop' => 'www.osom.com',
+                'device' => new Device('10.10.0.0','Safari OSX Webkit 1113')
+                ))->send();
        // error_log(print_r($response, true), 3, '/tmp/purchases.log');
         $this->assertTrue($response->isSuccessful());
         //print_r($response);
@@ -46,13 +52,30 @@ class PurchaseTest extends GatewayTestCase
      */
     public function testPurchaseWToken()
     {
+        $faker = Faker\Factory::create();
         $cardData = [
             'number' => '4012000033330026',
             'expiryMonth' => '5',
             'expiryYear' => '2017',
             'cvv' => '123',
-            'firstName' => 'Osom',
-            'lastName' => 'Tester',
+            'firstName' => $faker->firstName(),
+            'lastName' => $faker->lastName(),
+            'email' => $faker->email(),
+            'billingAddress1' => 'Av. Horacio 340 PH',
+            'billingAddress2' => 'POLANCO V SECCIÓN',
+    'billingCity' => 'MIGUEL HIDALGO',
+    'billingPostcode' => '11560',
+    'billingState' => 'DISTRITO FEDERAL',
+    'billingCountry' => 'MEX',
+    'billingPhone' => $faker->phoneNumber(),
+    'shippingAddress1' => 'Av. Horacio 340 PH',
+    'shippingAddress2' => 'POLANCO V SECCIÓN',
+    'shippingCity' => 'MIGUEL HIDALGO',
+    'shippingPostcode' => '11560',
+    'shippingState' => 'DISTRITO FEDERAL',
+    'shippingPhone' => $faker->phoneNumber(),
+    'shippingCountry' => 'MEX',
+
         ];
 
         //Send purchase request
@@ -65,22 +88,26 @@ class PurchaseTest extends GatewayTestCase
 
         $response = $this->gateway->purchase(
             array(
-                'amount' => '1009.00',
+                'amount' => $faker->randomFloat(2, 99, 6000),
                 'cardReference' => $bodyResponse['token'],
-                'transactionId' => time(),
+                'transactionId' => '2880'.time(),
+                'orderId' => '1000000'.time(),
                 'clientIp' => '189.206.5.138',
                 'card' => $cardData,
+                'shop' => 'www.osom.com',
+                'device' => new Device( $faker->ipv4, $faker->userAgent, 0, 255),
                 'items' => array(
                     array ('sku' => 'AEO-2015',
-                            'qty' => 1
+                            'price' => 1500
                     ),
                     array ('sku' => 'AEO-2087',
-                        'qty' => 1
+                        'qty' => 89
                     )
                 )
             ))->send();
 
-        error_log(print_r($response, true), 3, '/tmp/token_purchases.log');
+        error_log(print_r($response->getData(), true), 3, '/tmp/token_purchases.log');
+        error_log(print_r($response->getRequest()->getEndpoint(), true), 3, '/tmp/token_purchases.log');
         $this->assertTrue($response->isSuccessful());
         //print_r($response);
 
@@ -121,10 +148,10 @@ class PurchaseTest extends GatewayTestCase
                 'card' => $cardData,
                 'items' => array(
                     array ('sku' => 'AEO-2015',
-                        'qty' => 1
+                        'price' => 1200
                     ),
                     array ('sku' => 'AEO-2087',
-                        'qty' => 1
+                        'price' => 189
                     )
                 )
             ))->setInstallments(3)->send();
@@ -147,30 +174,5 @@ class PurchaseTest extends GatewayTestCase
     }
 
 
-    /*public function testFetchTransaction()
-    {
-        $request = $this->gateway->fetchTransaction(array('transactionReference' => 'abc123'));
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\FetchTransactionRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
-    }*/
-
-    /*public function testAuthorize()
-{
-    $this->setMockHttpResponse('ProPurchaseSuccess.txt');
-    $response = $this->gateway->authorize($this->options)->send();
-    $this->assertTrue($response->isSuccessful());
-    $this->assertEquals('96U93778BD657313D', $response->getTransactionReference());
-    $this->assertNull($response->getMessage());
-} */
-
-
-    /*public function testPurchase()
-    {
-        $this->setMockHttpResponse('ProPurchaseSuccess.txt');
-        $response = $this->gateway->purchase($this->options)->send();
-        $this->assertTrue($response->isSuccessful());
-        $this->assertEquals('96U93778BD657313D', $response->getTransactionReference());
-        $this->assertNull($response->getMessage());
-    }*/
 
 }

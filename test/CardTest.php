@@ -1,8 +1,9 @@
 <?php
 
 namespace Omnipay\TNSPay;
+use Omnipay\TNSPay\CreditCard as CreditCard;
 use Omnipay\Tests\GatewayTestCase;
-use Omnipay\Common\CreditCard;
+//use Omnipay\Common\CreditCard;
 use Omnipay\TNSPay\Message\CardRequest;
 
 class CardTest extends GatewayTestCase
@@ -67,6 +68,20 @@ class CardTest extends GatewayTestCase
         $this->assertEquals('VALID', $bodyResponse['status']);
         $this->assertEquals('BASIC', $bodyResponse['verificationStrategy']);
         $this->assertEquals('BASIC_VERIFICATION_SUCCESSFUL', $bodyResponse['response']['gatewayCode']);
+
+    }
+
+    public function testCardSerialization()
+    {
+        $card = new CreditCard(array (
+            'number' => '4012000033330026',
+            'expiryMonth' => '5',
+            'expiryYear' => '2017',
+            'cvv' => '123'
+        ));
+
+
+        print_r(serialize($card));
 
     }
 
