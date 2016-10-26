@@ -28,7 +28,7 @@ class PurchaseRequest extends TnsRequest
      */
     public function getData()
     {
-        $this->validate('amount', 'transactionId', 'orderId', 'device', 'shop', 'customerId');
+        $this->validate('amount', 'transactionId', 'orderId', 'device', 'shop', 'customerId', 'coupon');
         //$this->getCard()->validate();
 
         $data = array(
@@ -57,6 +57,9 @@ class PurchaseRequest extends TnsRequest
                                 'browser' => substr($this->getDevice()->getBrowser(), 0, 255)
                             )
         );
+
+        if(strlen($this->getCoupon()) > 0)
+            $data['order']['discount']['code'] = $this->getCoupon();
 
         if($this->installments > 1 ) {
             $data['paymentPlan'] = $this->getInstallmentsData();
@@ -250,6 +253,27 @@ class PurchaseRequest extends TnsRequest
     public function setCustomerId($value)
     {
         return $this->setParameter('customerId', $value);
+    }
+
+    /**
+     * Get coupon used in order
+     *
+     * @return string
+     */
+    public function getCoupon()
+    {
+        return $this->getParameter('coupon');
+    }
+
+    /**
+     * Sets the coupon code used
+     *
+     * @param string $value
+     * @return AbstractRequest Provides a fluent interface
+     */
+    public function setCoupon($value)
+    {
+        return $this->setParameter('coupon', $value);
     }
 
 }
