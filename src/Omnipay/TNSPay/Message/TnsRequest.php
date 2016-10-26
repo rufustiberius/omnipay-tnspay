@@ -68,47 +68,6 @@ abstract class TnsRequest extends AbstractRequest
     }
 
 
-    /**
-     * Get the client Device.
-     *
-     * @return string
-     */
-    public function getDevice()
-    {
-        return $this->getParameter('device');
-    }
-
-    /**
-     * Sets the client Device.
-     *
-     * @param string $value
-     * @return AbstractRequest Provides a fluent interface
-     */
-    public function setDevice($value)
-    {
-        return $this->setParameter('device', $value);
-    }
-
-    /**
-     * Get the client Device.
-     *
-     * @return string
-     */
-    public function getShop()
-    {
-        return $this->getParameter('shop');
-    }
-
-    /**
-     * Sets the client Device.
-     *
-     * @param string $value
-     * @return AbstractRequest Provides a fluent interface
-     */
-    public function setShop($value)
-    {
-        return $this->setParameter('shop', $value);
-    }
 
     /**
      * Get the data to be sent to TNSPay.

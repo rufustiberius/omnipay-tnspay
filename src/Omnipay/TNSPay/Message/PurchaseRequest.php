@@ -28,7 +28,7 @@ class PurchaseRequest extends TnsRequest
      */
     public function getData()
     {
-        $this->validate('amount', 'transactionId', 'orderId', 'device', 'shop');
+        $this->validate('amount', 'transactionId', 'orderId', 'device', 'shop', 'customerId');
         //$this->getCard()->validate();
 
         $data = array(
@@ -47,6 +47,7 @@ class PurchaseRequest extends TnsRequest
                 'amount'    => $this->getAmount(),
                 'currency'  => $this->getCurrency(),
                 'owningEntity' => substr($this->getShop(), 0, 40),
+                'customerReference'=> $this->getCustomerId(),
             ),
             'billing' => array('address'=>$this->getAddress($this->getCard(), 'Billing') ),
             'shipping' => array ( 'address'=>$this->getAddress($this->getCard(), 'Shipping')),
@@ -61,7 +62,6 @@ class PurchaseRequest extends TnsRequest
             $data['paymentPlan'] = $this->getInstallmentsData();
         }
 
-        error_log(print_r($data, true), 3, '/tmp/purchase_request.log');
 
         return $data;
     }
@@ -186,6 +186,70 @@ class PurchaseRequest extends TnsRequest
         }
 
         return $this->response = new Response($this, $httpResponse->getBody());
+    }
+
+
+    /**
+     * Get the client Device.
+     *
+     * @return string
+     */
+    public function getDevice()
+    {
+        return $this->getParameter('device');
+    }
+
+    /**
+     * Sets the client Device.
+     *
+     * @param string $value
+     * @return AbstractRequest Provides a fluent interface
+     */
+    public function setDevice($value)
+    {
+        return $this->setParameter('device', $value);
+    }
+
+    /**
+     * Get the client Device.
+     *
+     * @return string
+     */
+    public function getShop()
+    {
+        return $this->getParameter('shop');
+    }
+
+    /**
+     * Sets the client Device.
+     *
+     * @param string $value
+     * @return AbstractRequest Provides a fluent interface
+     */
+    public function setShop($value)
+    {
+        return $this->setParameter('shop', $value);
+    }
+
+    /**
+     * Get customer id
+     *
+     * @return int
+     */
+    public function getCustomerId()
+    {
+        return $this->getParameter('customerId');
+    }
+
+    /**
+     * Sets the customer Id
+     *
+     * @param int $value
+     * @return AbstractRequest Provides a fluent interface
+     */
+    public function setCustomerId($value)
+    {
+        return $this->setParameter('customerId', $value);
     }
 
 }

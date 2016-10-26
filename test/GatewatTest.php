@@ -95,7 +95,8 @@ class PurchaseTest extends GatewayTestCase
                 'clientIp' => '189.206.5.138',
                 'card' => $cardData,
                 'shop' => 'www.osom.com',
-                'device' => new Device( $faker->ipv4, $faker->userAgent, 0, 255),
+                'device' => new Device( $faker->ipv4, $faker->userAgent),
+                'customerId' => 35488,
                 'items' => array(
                     array ('sku' => 'AEO-2015',
                             'price' => 1500

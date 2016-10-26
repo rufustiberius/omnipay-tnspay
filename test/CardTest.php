@@ -77,7 +77,8 @@ class CardTest extends GatewayTestCase
             'number' => '4012000033330026',
             'expiryMonth' => '5',
             'expiryYear' => '2017',
-            'cvv' => '123'
+            'cvv' => '123',
+            'device' => new Device('127.0.0.1', 'adsdsdsadas')
         ));
 
 
@@ -85,4 +86,12 @@ class CardTest extends GatewayTestCase
 
     }
 
+    public function testDeviceSerialization()
+    {
+
+        $d= new Device('127.0.0.1', 'adsdsdsadas sass');
+        var_dump($d->toArray());
+        print_r(serialize($d));
+
+    }
 }
