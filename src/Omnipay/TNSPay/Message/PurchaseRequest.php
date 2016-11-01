@@ -28,7 +28,7 @@ class PurchaseRequest extends TnsRequest
      */
     public function getData()
     {
-        $this->validate('amount', 'transactionId', 'orderId', 'device', 'shop', 'customerId', 'coupon');
+        $this->validate('amount', 'transactionId', 'orderId', 'device', 'shop', 'customerId', 'cardReference', 'items');
         //$this->getCard()->validate();
 
         $data = array(
@@ -48,24 +48,19 @@ class PurchaseRequest extends TnsRequest
                 'currency'  => $this->getCurrency(),
                 'owningEntity' => substr($this->getShop(), 0, 40),
                 'customerReference'=> $this->getCustomerId(),
+                'productSKU' => $this->getMostExpensiveSku(),
             ),
             'billing' => array('address'=>$this->getAddress($this->getCard(), 'Billing') ),
             'shipping' => array ( 'address'=>$this->getAddress($this->getCard(), 'Shipping')),
-            //'shi' => $this->getBillingAddress(),
             'sourceOfFunds' => $this->getSourceOfFunds($this->getCard(), $this->getCardReference()),
             'device' => array ( 'ipAddress' => $this->getDevice()->getIp(),
                                 'browser' => substr($this->getDevice()->getBrowser(), 0, 255)
                             )
         );
 
-        if(strlen($this->getCoupon()) > 0)
-            $data['order']['discount']['code'] = $this->getCoupon();
-
         if($this->installments > 1 ) {
             $data['paymentPlan'] = $this->getInstallmentsData();
         }
-
-
         return $data;
     }
 
@@ -129,6 +124,23 @@ class PurchaseRequest extends TnsRequest
         return $installments;
     }
 
+
+    /**
+     * @return string
+     */
+    protected function getMostExpensiveSku()
+    {
+        $sku=null;
+        $items = $this->getItems()->all();
+
+        usort($items, function ($a, $b) {
+            return $b->getPrice() - $a->getPrice();
+        });
+
+        //API only accepts the first 15 characters of SKU
+        $sku = substr($items[0]->getName(), 0, 15);
+        return $sku;
+    }
 
     /**
      * @param $card
@@ -234,6 +246,28 @@ class PurchaseRequest extends TnsRequest
         return $this->setParameter('shop', $value);
     }
 
+
+    /**
+     * Get the card reference.
+     *
+     * @return string
+     */
+    public function getCardReference()
+    {
+        return $this->getParameter('cardReference');
+    }
+
+    /**
+     * Sets the card reference.
+     *
+     * @param string $value
+     * @return AbstractRequest Provides a fluent interface
+     */
+    public function setCardReference($value)
+    {
+        return $this->setParameter('cardReference', $value);
+    }
+
     /**
      * Get customer id
      *
@@ -255,25 +289,5 @@ class PurchaseRequest extends TnsRequest
         return $this->setParameter('customerId', $value);
     }
 
-    /**
-     * Get coupon used in order
-     *
-     * @return string
-     */
-    public function getCoupon()
-    {
-        return $this->getParameter('coupon');
-    }
-
-    /**
-     * Sets the coupon code used
-     *
-     * @param string $value
-     * @return AbstractRequest Provides a fluent interface
-     */
-    public function setCoupon($value)
-    {
-        return $this->setParameter('coupon', $value);
-    }
 
 }

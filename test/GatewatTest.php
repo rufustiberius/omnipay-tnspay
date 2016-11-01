@@ -92,18 +92,26 @@ class PurchaseTest extends GatewayTestCase
                 'cardReference' => $bodyResponse['token'],
                 'transactionId' => '2880'.time(),
                 'orderId' => '1000000'.time(),
-                'clientIp' => '189.206.5.138',
                 'card' => $cardData,
+                //'discount'=>20,
+                //'coupon' => 'ABC-789',
                 'shop' => 'www.osom.com',
                 'device' => new Device( $faker->ipv4, $faker->userAgent),
                 'customerId' => 35488,
                 'items' => array(
-                    array ('sku' => 'AEO-2015',
-                            'price' => 1500
+                    array (
+                            'name' => 'AEO-2015',
+                            'price' => $faker->randomFloat(2, 99, 1000),
+                            'quantity' => 1
                     ),
-                    array ('sku' => 'AEO-2087',
-                        'qty' => 89
-                    )
+                  /*  array ('name' => 'AEO-2087',
+                            'price' => $faker->randomFloat(2, 99, 2000),
+                            'quantity' => 1
+                    ),
+                    array ('name' => 'AEO-808',
+                        'price' => $faker->randomFloat(2, 99, 1000),
+                        'quantity' => 1
+                    )*/
                 )
             ))->send();
 
