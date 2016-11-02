@@ -39,8 +39,8 @@ class PurchaseRequest extends TnsRequest
                 'frequency' => 'SINGLE'
             ),
             'customer' => array ( 'email' => $this->getCard()->getEmail(),
-                                  'firstName'=>$this->getCard()->getFirstName(),
-                                    'lastName' => $this->getCard()->getLastName()
+                                  'firstName'=>$this->getCard()->getBillingFirstName(),
+                                  'lastName' => $this->getCard()->getBillingLastName()
                 ),
             'order'         => array(
                 'reference' => $this->getTransactionId(),
@@ -51,7 +51,12 @@ class PurchaseRequest extends TnsRequest
                 'productSKU' => $this->getMostExpensiveSku(),
             ),
             'billing' => array('address'=>$this->getAddress($this->getCard(), 'Billing') ),
-            'shipping' => array ( 'address'=>$this->getAddress($this->getCard(), 'Shipping')),
+            'shipping' => array ( 'address'=>$this->getAddress($this->getCard(), 'Shipping'),
+                                    'contact' => array ('firstName' => $this->getCard()->getShippingFirstName(),
+                                                        'lastName' => $this->getCard()->getShippingLastName(),
+                                                        'phone' => $this->getCard()->getShippingPhone()
+                                        )
+                                    ),
             'sourceOfFunds' => $this->getSourceOfFunds($this->getCard(), $this->getCardReference()),
             'device' => array ( 'ipAddress' => $this->getDevice()->getIp(),
                                 'browser' => substr($this->getDevice()->getBrowser(), 0, 255)
@@ -61,6 +66,7 @@ class PurchaseRequest extends TnsRequest
         if($this->installments > 1 ) {
             $data['paymentPlan'] = $this->getInstallmentsData();
         }
+       // error_log(print_r($data, true), 3, '/tmp/token_purchases.log');
         return $data;
     }
 
@@ -74,11 +80,11 @@ class PurchaseRequest extends TnsRequest
     }
 
     /**
-     * @param Omnipay\Common\CreditCard $card
+     * @param Omnipay\TNSPay\CreditCard $card
      * @param string $cardReference
      * @return array
      */
-    private function getSourceOfFunds($card, $cardReference=null)
+    private function getSourceOfFunds(\Omnipay\TNSPay\CreditCard $card, $cardReference=null)
     {
         $sourceOfFouds = array(
             'type'     => 'CARD',
@@ -90,7 +96,7 @@ class PurchaseRequest extends TnsRequest
                         'year'  => $card->getExpiryDate('y'),
                     ),
                     'securityCode' => $card->getCVV(),
-                    'nameOnCard'=> $card->getBillingName(),
+                    'nameOnCard'=> substr( $card->getFirstName(). ' ' .$card->getLastName(), 0, 255),
                 ),
             ),
         );

@@ -23,7 +23,7 @@ class CreditCard extends \Omnipay\Common\CreditCard
      */
     public function setFirstName($value)
     {
-        return $this->setParameter('name', $value);
+        return $this->setParameter('firstName', $value);
     }
 
 

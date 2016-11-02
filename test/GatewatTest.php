@@ -65,6 +65,8 @@ class PurchaseTest extends GatewayTestCase
             'billingAddress2' => 'POLANCO V SECCIÓN',
     'billingCity' => 'MIGUEL HIDALGO',
     'billingPostcode' => '11560',
+            'billingFirstName' => $faker->firstName(),
+            'billingLastName' => $faker->lastName(),
     'billingState' => 'DISTRITO FEDERAL',
     'billingCountry' => 'MEX',
     'billingPhone' => $faker->phoneNumber(),
@@ -75,7 +77,8 @@ class PurchaseTest extends GatewayTestCase
     'shippingState' => 'DISTRITO FEDERAL',
     'shippingPhone' => $faker->phoneNumber(),
     'shippingCountry' => 'MEX',
-
+            'shippingFirstName' => $faker->firstName(),
+            'shippingLastName' => $faker->lastName(),
         ];
 
         //Send purchase request
@@ -93,8 +96,6 @@ class PurchaseTest extends GatewayTestCase
                 'transactionId' => '2880'.time(),
                 'orderId' => '1000000'.time(),
                 'card' => $cardData,
-                //'discount'=>20,
-                //'coupon' => 'ABC-789',
                 'shop' => 'www.osom.com',
                 'device' => new Device( $faker->ipv4, $faker->userAgent),
                 'customerId' => 35488,
