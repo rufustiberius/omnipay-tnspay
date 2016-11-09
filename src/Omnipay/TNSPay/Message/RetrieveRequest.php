@@ -2,7 +2,6 @@
 
 namespace Omnipay\TNSPay\Message;
 
-use DOMDocument;
 use Omnipay\Common\Exception\InvalidCreditCardException;
 use SimpleXMLElement;
 use Omnipay\Common\Message\AbstractRequest;
@@ -10,13 +9,10 @@ use Omnipay\Common\Message\AbstractRequest;
 /**
  * TNSPay Card Request (Tokenization based om system-generated tokens)
  */
-class CardRequest extends TnsRequest
+class RetrieveRequest extends TnsRequest
 {
 
-    /**
-     * @var string
-     */
-    protected $verificationStrategy = 'BASIC';
+
     /**
      * Get the data to be sent to TNSPay.
      *
@@ -24,26 +20,7 @@ class CardRequest extends TnsRequest
      */
     public function getData()
     {
-       // $this->validate('card');
-        //$this->getCard()->validate();
-        $data = array(
-            'sourceOfFunds' => array(
-                'type'     => 'CARD',
-                'provided' => array(
-                    'card' => array(
-                        'number'       => $this->getCard()->getNumber(),
-                        'expiry'       => array(
-                            'month' => $this->getCard()->getExpiryDate('m'),
-                            'year'  => $this->getCard()->getExpiryDate('y'),
-                        ),
-                        'securityCode' => $this->getCard()->getCVV(),
-                    ),
-                ),
-            ),
-            'verificationStrategy' => $this->getVerificationStrategy()
-        );
-
-        return $data;
+        $this->validate('orderId');
     }
 
 
@@ -52,10 +29,12 @@ class CardRequest extends TnsRequest
      */
     public function getEndpoint()
     {
+        //merchant/{merchantid}/order/{orderid}/transaction/{transactionid}
+        //api/rest/version/39/merchant/{merchantId}/order/{orderid}
         return
             parent::TNSPAY_BASE_URL.'api/rest/version/' . parent::TNSPAY_API_VERSION_NUMBER .
             '/merchant/' . $this->getMerchantId() .
-            '/token';
+            '/order/'.$this->getOrderId();
     }
 
     /**
@@ -66,12 +45,12 @@ class CardRequest extends TnsRequest
      */
     public function sendData($data)
     {
-        $json         = json_encode($data);
+
         $headers      = array(
             'Content-Type' => 'application/json;charset=utf-8',
         );
         try {
-            $httpResponse = $this->httpClient->post($this->getEndpoint(), $headers, $json)
+            $httpResponse = $this->httpClient->get($this->getEndpoint(), $headers)
                 ->setAuth('merchant.' . $this->getMerchantId(), $this->getPassword())
                 ->send();
 
@@ -84,23 +63,6 @@ class CardRequest extends TnsRequest
 
 
         return $this->response = new Response($this, $httpResponse->getBody());
-    }
-
-
-    /**
-     * @param $verificationStrategy
-     */
-    public function setVerificationStrategy( $verificationStrategy)
-    {
-        $this->verificationStrategy = $verificationStrategy;
-    }
-
-    /**
-     * @return string
-     */
-    public function getVerificationStrategy()
-    {
-        return $this->verificationStrategy;
     }
 
 }

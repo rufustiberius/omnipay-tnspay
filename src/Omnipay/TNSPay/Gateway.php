@@ -75,6 +75,9 @@ class Gateway extends AbstractGateway
         return $this->createRequest('\Omnipay\TNSPay\Message\CardRequest', $parameters);
     }
 
-
+    public function retrieve(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\TNSPay\Message\RetrieveRequest', $parameters);
+    }
 
 }

@@ -11,9 +11,9 @@ class PurchaseTest extends GatewayTestCase
     {
         parent::setUp();
         $this->gateway = new Gateway($this->getHttpClient(), $this->getHttpRequest());
-        $this->gateway->setMerchantId('TEST9351473526B');
+        $this->gateway->setMerchantId('TEST9351473526');
         $this->gateway->setCurrency('MXN');
-        $this->gateway->setPassword('7de59bb7bbf3c86c0ca98d98ece63f27');
+        $this->gateway->setPassword('30bbc6d3a1a3d189802bde419c856f69');
     }
 
 
@@ -52,12 +52,15 @@ class PurchaseTest extends GatewayTestCase
      */
     public function testPurchaseWToken()
     {
+        $ppBag = new PaymentPlanBag();
+        $ppBag->add(array('cardBrand'=>'default', 'planId' =>'PLANN'));
+
         $faker = Faker\Factory::create();
         $cardData = [
-            'number' => '4012000033330026',
+            'number' => '345678901234564',
             'expiryMonth' => '5',
             'expiryYear' => '2017',
-            'cvv' => '123',
+            'cvv' => '1234',
             'firstName' => $faker->firstName(),
             'lastName' => $faker->lastName(),
             'email' => $faker->email(),
@@ -82,11 +85,11 @@ class PurchaseTest extends GatewayTestCase
         ];
 
         //Send purchase request
-        $tokenizationResponse = $this->gateway->createCard( [ 'card' => $cardData ])->send();
 
+        $tokenizationResponse = $this->gateway->createCard( [ 'card' => $cardData ])->send();
+        $this->gateway->setPaymentPlans($ppBag);
         $this->assertTrue($tokenizationResponse->isSuccessful());
         $bodyResponse = $tokenizationResponse->getData();
-        error_log(print_r($bodyResponse, true), 3, '/tmp/tokens.log');
 
 
         $response = $this->gateway->purchase(
@@ -114,7 +117,7 @@ class PurchaseTest extends GatewayTestCase
                         'quantity' => 1
                     )*/
                 )
-            ))->send();
+            ))->setInstallments(3)->send();
 
         error_log(print_r($response->getData(), true), 3, '/tmp/token_purchases.log');
         error_log(print_r($response->getRequest()->getEndpoint(), true), 3, '/tmp/token_purchases.log');
@@ -127,14 +130,14 @@ class PurchaseTest extends GatewayTestCase
     public function testPaymentPlanData()
     {
         $ppBag = new PaymentPlanBag();
-        $ppBag->add(array('cardBrand'=>'default', 'planId' =>'BANORTE_WITHOUT_INTEREST'));
+        $ppBag->add(array('cardBrand'=>'default', 'planId' =>'PLANAMEX'));
 
         //$ppBag->add(array('cardBrand'=>'default', 'planId' =>'XXXX'));
 
         $this->gateway->setPaymentPlans($ppBag);
 
         $cardData = [
-            'number' => '4012000033330026',
+            'number' => '345678901234564',
             'expiryMonth' => '5',
             'expiryYear' => '2017',
             'cvv' => '123',
