@@ -2,7 +2,7 @@
 
 namespace Omnipay\TNSPay\Message;
 
-use Omnipay\Common\Exception\InvalidCreditCardException;
+use Guzzle\Http\Exception\BadResponseException;
 use SimpleXMLElement;
 use Omnipay\Common\Message\AbstractRequest;
 
@@ -20,7 +20,7 @@ class RetrieveRequest extends TnsRequest
      */
     public function getData()
     {
-        $this->validate('orderId');
+        $this->validate('orderId', 'transactionId');
     }
 
 
@@ -34,7 +34,8 @@ class RetrieveRequest extends TnsRequest
         return
             parent::TNSPAY_BASE_URL.'api/rest/version/' . parent::TNSPAY_API_VERSION_NUMBER .
             '/merchant/' . $this->getMerchantId() .
-            '/order/'.$this->getOrderId();
+            '/order/'.$this->getOrderId().
+            '/transaction/'.$this->getTransactionId();
     }
 
     /**
@@ -45,7 +46,7 @@ class RetrieveRequest extends TnsRequest
      */
     public function sendData($data)
     {
-
+        
         $headers      = array(
             'Content-Type' => 'application/json;charset=utf-8',
         );
@@ -55,8 +56,7 @@ class RetrieveRequest extends TnsRequest
                 ->send();
 
         } catch (BadResponseException $e) {
-
-            return $this->response = new Response($this, $e->getRequest()->getResponse()->getBody());
+           return $this->response = new Response($this, $e->getRequest()->getResponse()->getBody());
         } catch (InvalidCreditCardException $cardException) {
             return $this->response = new Response($this, $cardException->getMessage());
         }

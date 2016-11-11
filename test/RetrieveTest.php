@@ -25,6 +25,7 @@ class RetrieveTest extends GatewayTestCase
 
         $orderData = [
             'orderId' => 10001021454,
+            'transactionId'=>203825632
         ];
 
             //Send purchase request
@@ -46,5 +47,29 @@ class RetrieveTest extends GatewayTestCase
 
 
 
+    public function testFail()
+    {
+
+        $orderData = [
+            'orderId' => 100010468721454,
+            'transactionId'=> '798'
+        ];
+
+        //Send purchase request
+        $response = $this->gateway->retrieve($orderData)->send();
+
+        // var_dump($response->getResponse());
+        //error_log(print_r($response, true), 3, '/tmp/retrieve.log');
+        $this->assertTrue(!$response->isSuccessful());
+        $bodyResponse = $response->getData();
+        error_log(print_r($bodyResponse, true), 3, '/tmp/retrieve.log');
+        //error_log(print_r($response, true), 3, '/tmp/rr.log');
+        //  error_log(print_r($response->getData(), true), 3, '/tmp/rr.log');
+        /*
+                $this->assertEquals('VALID', $bodyResponse['status']);
+                $this->assertEquals('BASIC', $bodyResponse['verificationStrategy']);
+                $this->assertEquals('BASIC_VERIFICATION_SUCCESSFUL', $bodyResponse['response']['gatewayCode']);
+        */
+    }
 
 }
